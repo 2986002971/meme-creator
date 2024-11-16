@@ -12,7 +12,7 @@
         <li>Select a character image</li>
         <li>Enter your text</li>
         <li>Adjust text position, size, and rotation</li>
-        <li>Click "Copy" or "Download" to save your sticker</li>
+        <li>Click "Download" to save your sticker</li>
       </ol>
 
       <div class="text-xl font-bold mb-2">Credits</div>
