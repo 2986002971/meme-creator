@@ -81,6 +81,8 @@ import Info from './components/Info.vue'
 import { ref, onMounted, watch } from 'vue';
 import { useToast } from 'primevue/usetoast';
 import characters from './characters.json';
+import { writeFile, BaseDirectory } from '@tauri-apps/plugin-fs';
+import { downloadDir } from '@tauri-apps/api/path';
 
 // 状态管理
 const toast = useToast();
@@ -188,7 +190,7 @@ const drawBackground = (ctx) => {
 
 // 绘制文字
 const drawText = (ctx) => {
-  ctx.font = `${fontSize.value}px YurukaStd, SSFangTangTi`;
+  ctx.font = `${fontSize.value}px SSFangTangTi`;
   ctx.lineWidth = 9;
   ctx.save();
 
@@ -222,34 +224,46 @@ const setCharacter = (newCharacter) => {
 };
 
 // 下载功能
-const download = () => {
+const download = async () => {
   try {
     const canvas = mainCanvasRef.value.getContext('2d').canvas;
     const dataUrl = canvas.toDataURL('image/png');
+    const blobData = dataURLtoBlob(dataUrl);
     
-    const link = document.createElement("a");
-    link.download = `${characters[character.value].name}.png`;
-    const blob = dataURLtoBlob(dataUrl);
-    link.href = URL.createObjectURL(blob);
+    // 转换 Blob 为 Uint8Array
+    const arrayBuffer = await blobData.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
     
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    // 获取下载目录路径
+    const savePath = await downloadDir();
+    const fileName = `${characters[character.value].name}.png`;
     
-    URL.revokeObjectURL(link.href);
+    console.log('准备保存文件:', fileName); // 调试日志
     
+    // 使用 writeFile 保存文件
+    await writeFile(fileName, uint8Array, {
+      baseDir: BaseDirectory.Download // 使用系统下载目录
+    });
+
     toast.add({ 
       severity: 'success', 
       summary: '成功', 
-      detail: '下载成功', 
-      life: 3000 
+      detail: `文件已保存到: ${savePath}${fileName}`, 
+      life: 5000  // 增加显示时间
     });
   } catch (error) {
-    console.error('下载失败:', error);
+    // 改进错误处理
+    console.error('保存失败:', error); // 在控制台打印完整错误
+    const errorMessage = error instanceof Error 
+      ? error.message 
+      : typeof error === 'string' 
+        ? error 
+        : '未知错误';
+        
     toast.add({ 
       severity: 'error', 
       summary: '错误', 
-      detail: '下载失败', 
+      detail: `保存失败: ${errorMessage}`, 
       life: 3000 
     });
   }
@@ -323,13 +337,8 @@ canvas {
 }
 
 @font-face {
-  font-family: 'YurukaStd';
-  src: url('../src-tauri/fonts/YurukaStd.ttf') format('truetype');
-}
-
-@font-face {
   font-family: 'SSFangTangTi';
-  src: url('../src-tauri/fonts/SSFangTangTi.ttf') format('truetype');
+  src: url('../src-tauri/fonts/ShangShouFangTangTi.ttf') format('truetype');
 }
 
 .layout-container {

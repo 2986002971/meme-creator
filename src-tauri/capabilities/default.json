@@ -10,6 +10,21 @@
     "shell:allow-open",
     "clipboard-manager:allow-write-image",
     "clipboard-manager:allow-write-text",
-    "shell:default"
+    "shell:default",
+    "fs:default",
+    "fs:write-all",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$DOWNLOAD",
+          "recursive": true
+        },
+        {
+          "path": "$DOWNLOAD/**",
+          "recursive": true
+        }
+      ]
+    }
   ]
 }
