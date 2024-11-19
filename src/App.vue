@@ -7,7 +7,7 @@
     </Dialog>
 
     <div class="flex flex-column gap-4">
-      <div class="flex gap-4">
+      <div class="layout-container">
         <div class="canvas-container flex flex-column gap-4">
           <div class="canvas-wrapper flex gap-4">
             <Canvas ref="mainCanvasRef" :draw="draw" />
@@ -330,6 +330,43 @@ canvas {
 @font-face {
   font-family: 'SSFangTangTi';
   src: url('../src-tauri/fonts/SSFangTangTi.ttf') format('truetype');
+}
+
+.layout-container {
+  display: flex;
+  gap: 1rem;
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+  .app {
+    padding: 1rem;
+  }
+
+  .layout-container {
+    flex-direction: column;
+  }
+
+  .canvas-container {
+    width: 100%;
+  }
+
+  .controls {
+    width: 100%;
+    padding-top: 1rem;
+  }
+
+  /* 确保画布和滑块在移动端也能正确显示 */
+  .canvas-wrapper {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  canvas {
+    max-width: calc(100% - 2rem); /* 留出右侧滑块的空间 */
+    height: auto;
+  }
 }
 </style>
 
